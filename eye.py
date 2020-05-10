@@ -1,0 +1,45 @@
+import cv2 
+import numpy as np
+cap = cv2.VideoCapture(0)
+ret, img2 = cap.read()
+while(True):
+
+	ret, img = cap.read()
+	kernal=np.ones((2,2),np.uint8)
+	img1= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+	img1 = cv2.GaussianBlur(img1,(5,5),0)   
+	img = cv2.rectangle(img, (200,80), (400,180), (255,0,0), 2)
+	
+	img2= cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+	img2 = cv2.GaussianBlur(img2,(5,5),0)  
+	canny1=cv2.Canny(img1, 40, 50)
+	canny2=cv2.Canny(img2, 40, 50)
+	canny = cv2.bitwise_and(canny1, canny2)
+	can = cv2.getRectSubPix(canny1, (400,180), (200,80))
+	#canny1 = cv2.bitwise_not(canny1)
+	canny1=cv2.line(canny1, (200,200), (310,200), (255,255,255), 1)
+	canny1=cv2.line(canny1, (200,235), (310,235), (255,255,255), 1)
+	dont, contours, hierarchy = cv2.findContours(canny1, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+	contours = filter(lambda x: cv2.contourArea(x)>500 , contours)
+	canny1= cv2.cvtColor(canny1, cv2.COLOR_GRAY2BGR)
+	cv2.drawContours(canny1, contours, -1, (0, 255, 0), 1) 
+	#canny= cv2.dilate(canny, kernal, iterations=1)
+	#img2= cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+	#diff=cv2.absdiff(img, img2)
+	#diff= cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
+	#_,diff1= cv2.threshold(diff, 100,255, cv2.THRESH_BINARY)
+	cv2.imshow("diff", canny1)
+	#cv2.imshow("diffi", can)
+	#cv2.imshow("diff1", diff1)
+	cv2.imshow("img", img)
+
+#	_,ig= cv2.threshold(img, 75,255, cv2.THRESH_TRIANGLE)
+	_,im= cv2.threshold(img1, 100,255, cv2.THRESH_BINARY)
+	#cv2.imshow('im', im)
+	cv2.imshow('ig', img1)
+	key = cv2.waitKey(5)    
+	if key==ord('q'):                        #press "q" key on keyboard to stop videocapture
+		break
+	ret, img2 = cap.read()
+cap.release()
+cv2.destroyAllWindows()
